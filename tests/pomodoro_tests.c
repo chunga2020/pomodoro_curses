@@ -144,9 +144,10 @@ char *test_Timer_tick_null_ptr() {
 char *test_Timer_tick_negative_hours() {
     Timer *t = Timer_alloc();
     mu_assert(t != NULL, "Timer_alloc failed.");
+    long int rc = Timer_set(t, 0, 0, 0);
     t->hours = -1;
 
-    long int rc = Timer_tick(t);
+    rc = Timer_tick(t);
     mu_assert(rc == -1, "With a negative hour value, expected rc -1, got %ld",
             rc);
 
