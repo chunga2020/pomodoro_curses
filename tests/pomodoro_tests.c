@@ -71,6 +71,19 @@ char *test_Timer_set_valid_minutes() {
     return NULL;
 }
 
+char *test_Timer_set_minutes_too_large() {
+    Timer *t = Timer_alloc();
+    mu_assert(t != NULL, "Timer_alloc failed.");
+
+    int minutes = 60;
+    int rc = Timer_set(t, 0, minutes, 0);
+    mu_assert(rc == -1,
+            "With minutes set to %d, expected rc -1, got rc %d",
+            minutes, rc);
+    
+    return NULL;
+}
+
 char *all_tests() {
     mu_suite_start();
 
@@ -80,6 +93,7 @@ char *all_tests() {
     mu_run_test(test_Timer_set_negative_minutes);
     mu_run_test(test_Timer_set_valid_hours);
     mu_run_test(test_Timer_set_valid_minutes);
+    mu_run_test(test_Timer_set_minutes_too_large);
 
     return NULL;
 }
