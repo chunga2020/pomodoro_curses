@@ -42,6 +42,7 @@ char *test_Timer_set_valid_hours() {
             "With hours set to %d, expected rc 0, got rc %d",
             hours, rc);
 
+    Timer_destroy(t);
     return NULL;
 }
 
@@ -55,6 +56,7 @@ char *test_Timer_set_negative_minutes() {
             "With minutes set to %d, expected rc -1, got rc %d",
             minutes, rc);
     
+    Timer_destroy(t);
     return NULL;
 }
 
@@ -68,6 +70,7 @@ char *test_Timer_set_valid_minutes() {
             "With minutes set to %d, expected rc 0, got rc %d",
             minutes, rc);
 
+    Timer_destroy(t);
     return NULL;
 }
 
@@ -81,6 +84,7 @@ char *test_Timer_set_minutes_too_large() {
             "With minutes set to %d, expected rc -1, got rc %d",
             minutes, rc);
     
+    Timer_destroy(t);
     return NULL;
 }
 
