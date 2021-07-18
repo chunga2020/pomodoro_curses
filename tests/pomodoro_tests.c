@@ -18,11 +18,26 @@ char *test_Timer_set_null_ptr() {
     return NULL;
 }
 
+char *test_Timer_set_negative_hours() {
+    Timer *t = Timer_alloc();
+    mu_assert(t != NULL, "Timer_alloc failed.");
+
+    int hours = -2;
+    int rc = Timer_set(t, hours, 0, 0);
+    mu_assert(rc == -1,
+            "With hours set to %d, expected retcode -1, got retcode %d",
+            hours, rc);
+
+    Timer_destroy(t);
+    return NULL;
+}
+
 char *all_tests() {
     mu_suite_start();
 
     mu_run_test(test_Timer_alloc);
     mu_run_test(test_Timer_set_null_ptr);
+    mu_run_test(test_Timer_set_negative_hours);
 
     return NULL;
 }
