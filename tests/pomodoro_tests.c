@@ -141,6 +141,19 @@ char *test_Timer_tick_null_ptr() {
     return NULL;
 }
 
+char *test_Timer_tick_negative_hours() {
+    Timer *t = Timer_alloc();
+    mu_assert(t != NULL, "Timer_alloc failed.");
+    t->hours = -1;
+
+    long int rc = Timer_tick(t);
+    mu_assert(rc == -1, "With a negative hour value, expected rc -1, got %ld",
+            rc);
+
+    Timer_destroy(t);
+    return NULL;
+}
+
 char *all_tests() {
     mu_suite_start();
 
@@ -156,6 +169,7 @@ char *all_tests() {
     mu_run_test(test_Timer_set_seconds_too_large);
 
     mu_run_test(test_Timer_tick_null_ptr);
+    mu_run_test(test_Timer_tick_negative_hours);
 
     return NULL;
 }
