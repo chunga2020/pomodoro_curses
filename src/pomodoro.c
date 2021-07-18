@@ -93,6 +93,20 @@ long int Timer_tick(Timer *t) {
     check(time_remaining > 0,
             "Time remaining cannot be negative. H: %d, M: %2d, S: %2d",
             t->hours, t->minutes, t->seconds);
+    sleep(TIMER_PULSE);
+    if (t->seconds == 0 && time_remaining > 59) {
+        t->seconds = 59;
+    } else {
+        t->seconds--;
+    }
+
+    if (t->minutes == 0 && time_remaining > 3559) {
+        t->minutes = 59;
+        t->hours--;
+    } else if (t->minutes > 0) {
+        t->minutes--;
+    }
+    time_remaining = (t->hours * 60 * 60) + (t->minutes * 60) + t->seconds;
     
     return time_remaining;
 error:
