@@ -130,6 +130,17 @@ char *test_Timer_set_seconds_too_large() {
     return NULL;
 }
 
+char *test_Timer_tick_null_ptr() {
+    Timer *t = NULL;
+
+    long int rc = Timer_tick(t);
+    mu_assert(rc == -1, "With a NULL Timer ptr, expected rc -1, got %ld",
+            rc);
+
+    Timer_destroy(t);
+    return NULL;
+}
+
 char *all_tests() {
     mu_suite_start();
 
@@ -143,6 +154,8 @@ char *all_tests() {
     mu_run_test(test_Timer_set_valid_seconds);
     mu_run_test(test_Timer_set_minutes_too_large);
     mu_run_test(test_Timer_set_seconds_too_large);
+
+    mu_run_test(test_Timer_tick_null_ptr);
 
     return NULL;
 }

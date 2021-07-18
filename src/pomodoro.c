@@ -76,3 +76,17 @@ void Timer_destroy(Timer *t) {
 error:
     return;
 }
+
+/*
+ * Make a timer count down
+ *
+ * Parameters:
+ *     t: The timer to count down
+ * 
+ * Returns: on success, the number of seconds remaining; on failure, -1
+ */
+long int Timer_tick(Timer *t) {
+    check(t != NULL, "Got NULL Timer pointer");
+error:
+    return -1;
+}
