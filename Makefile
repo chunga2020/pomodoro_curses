@@ -17,7 +17,7 @@ dev: CFLAGS=-g -Wall -Isrc -Wall -Wextra
 dev: all
 
 $(TARGET): build $(OBJECTS)
-	$(CC) -o $@ $(OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $(OBJECTS)
 
 build:
 	@mkdir -p bin
