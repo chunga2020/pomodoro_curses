@@ -31,6 +31,13 @@ void usage(char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
+    enum {
+        POMODORO_WORK,
+        POMODORO_SHORT_REST,
+        POMODORO_LONG_REST,
+        POMODORO_ERROR = -1
+    } STATES;
+
     /* #### program options #### */
     int opt; // variable for getting options with getopt(3)
 
