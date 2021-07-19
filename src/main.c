@@ -113,13 +113,33 @@ int main(int argc, char *argv[]) {
     keypad(stdscr, TRUE);
     noecho(); // don't echo on getch()
 
+    char *welcome_msg = "Welcome to pomodoro_curses";
+    mvprintw(row / 2, (col-strlen(welcome_msg)) / 2, "%s", welcome_msg);
+
+    Timer *pomodoro_timer = Timer_alloc();
+    check(pomodoro_timer != NULL, "Failed to allocate main pomodoro timer.");
+
+    /* Timer setup */
+    int minutes_per_session = session_length;
+    int hours = minutes_per_session / MINUTES_PER_HOUR;
+    minutes_per_session -= hours * MINUTES_PER_HOUR;
+    int minutes = minutes_per_session;
+    mvprintw(row / 2 + 1, 0, "Timer set for %d:%02d:00", hours, minutes);
+    refresh();
+
     getch();
 
+    Timer_destroy(pomodoro_timer);
+    pomodoro_timer = NULL;
     endwin();
     in_curses_mode = 0;
 
     return 0;
 error:
+    if (pomodoro_timer != NULL) {
+        Timer_destroy(pomodoro_timer);
+        pomodoro_timer = NULL;
+    }
     if (in_curses_mode) {
         endwin();
     }
