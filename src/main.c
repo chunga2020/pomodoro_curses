@@ -23,6 +23,26 @@ int main(int argc, char *argv[]) {
     // Default long break length, in minutes
     short int long_break_length = 30;
 
+    while ((opt = getopt(argc, argv, "b:p:s:B:")) != -1) {
+        switch (opt) {
+            case 'b':
+                short_break_length = atoi(optarg);
+                break;
+            case 'p':
+                pomodoros_per_set = atoi(optarg);
+                break;
+            case 's':
+                session_length = atoi(optarg);
+                break;
+            case 'B':
+                long_break_length = atoi(optarg);
+                break;
+            default:
+                log_err("Usage message not implemented.");
+                exit(EXIT_FAILURE);
+        }
+    }
+
     int row = 0;
     int col = 0;
 
