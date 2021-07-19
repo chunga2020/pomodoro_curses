@@ -37,6 +37,23 @@ void usage(char *argv[]) {
     );
 }
 
+char *pomodoro_status(STATE state) {
+    switch (state) {
+        case POMODORO_WORK:
+            return "Working, working, working...";
+        case POMODORO_SHORT_REST:
+            return "Taking a little break :)";
+        case POMODORO_LONG_REST:
+            return "Relaxing for a while :D";
+        case POMODORO_ERROR:
+            return "Something went wrong :(";
+        default:
+            sentinel("Invalid STATE value");
+    }
+error:
+    return NULL;
+}
+
 int main(int argc, char *argv[]) {
 
     /* #### program options #### */
