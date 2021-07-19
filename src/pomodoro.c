@@ -44,17 +44,12 @@ int Timer_set(Timer *t, int hours, int minutes, int seconds) {
     check(0 <= seconds && seconds <= 59,
             "Got bad 'seconds' value '%d'. Must be [0, 59]", seconds);
     
-    t->hours = hours;
-    check(t->hours == hours, "Hours not set correctly. Expected %d, got %d",
-            hours, t->hours);
-
-    t->minutes = minutes;
-    check(t->minutes == minutes,
-            "Minutes not set correctly. Expected %d, got %d", minutes,
-            t->minutes);
-
-    t->seconds = seconds;
-    check(t->seconds == seconds,
+    int total_seconds = (SECONDS_PER_MINUTE * MINUTES_PER_HOUR * hours)
+            + (SECONDS_PER_MINUTE * minutes)
+            + seconds;
+    t->seconds = total_seconds;
+    
+    check(t->seconds == total_seconds,
             "Seconds not set correctly. Expected %d, got %d", seconds,
             t->seconds);
 
@@ -85,28 +80,17 @@ error:
  * 
  * Returns: on success, the number of seconds remaining; on failure, -1
  */
-long int Timer_tick(Timer *t) {
+int Timer_tick(Timer *t) {
     check(t != NULL, "Got NULL Timer pointer");
-    long int time_remaining = (t->hours * 60 * 60)
-            + (t->minutes * 60)
-            + t->seconds;
+    int time_remaining = t->seconds;
     check(time_remaining > 0,
-            "Time remaining cannot be negative. H: %d, M: %2d, S: %2d",
-            t->hours, t->minutes, t->seconds);
+            "Time remaining cannot be negative. H: %d, M: %02d, S: %02d",
+            t->seconds / (SECONDS_PER_MINUTE * MINUTES_PER_HOUR),
+            t->seconds / SECONDS_PER_MINUTE,
+            t->seconds);
     sleep(TIMER_PULSE);
-    if (t->seconds == 0 && time_remaining > 59) {
-        t->seconds = 59;
-    } else {
-        t->seconds--;
-    }
-
-    if (t->minutes == 0 && time_remaining > 3559) {
-        t->minutes = 59;
-        t->hours--;
-    } else if (t->minutes > 0) {
-        t->minutes--;
-    }
-    time_remaining = (t->hours * 60 * 60) + (t->minutes * 60) + t->seconds;
+    t->seconds--;
+    time_remaining = t->seconds;
     
     return time_remaining;
 error:
