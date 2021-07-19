@@ -6,6 +6,28 @@
 #include "dbg.h"
 #include "pomodoro.h"
 
+const char *prog_name = "pomodoro_curses";
+
+void usage(char *argv[]) {
+    fprintf(stderr,
+            "%s: A simple ncurses-based Pomodoro timer\n"
+            "\n"
+            "Usage: %s [-h] [-b short_break_len] [-p sessions_per_set] "
+            "[-s session_length] [-B long_break_len]\n"
+            "\n"
+            "Note: all durations are in minutes\n"
+            "\n"
+            "Options:\n"
+            "    -h\tShow this help message and exit\n"
+            "\n"
+            "    -b\tLength of breaks between work sessions (default 5)\n"
+            "    -p\tNumber of pomodoros (work sessions) per set (default 3)\n"
+            "    -s\tPomodoro session length (default 25)\n"
+            "    -B\tLong break length (default 30)\n",
+            prog_name, prog_name
+
+    );
+}
 
 int main(int argc, char *argv[]) {
     /* #### program options #### */
@@ -23,11 +45,14 @@ int main(int argc, char *argv[]) {
     // Default long break length, in minutes
     short int long_break_length = 30;
 
-    while ((opt = getopt(argc, argv, "b:p:s:B:")) != -1) {
+    while ((opt = getopt(argc, argv, "b:hp:s:B:")) != -1) {
         switch (opt) {
             case 'b':
                 short_break_length = atoi(optarg);
                 break;
+            case 'h':
+                usage(argv);
+                exit(EXIT_SUCCESS);
             case 'p':
                 pomodoros_per_set = atoi(optarg);
                 break;
@@ -38,7 +63,7 @@ int main(int argc, char *argv[]) {
                 long_break_length = atoi(optarg);
                 break;
             default:
-                log_err("Usage message not implemented.");
+                usage(argv);
                 exit(EXIT_FAILURE);
         }
     }
