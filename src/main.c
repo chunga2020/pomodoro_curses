@@ -103,7 +103,11 @@ int main(int argc, char *argv[]) {
     int row = 0;
     int col = 0;
 
+    /* Has initscr been called? (for error-checking and cleanup purposes) */
+    int in_curses_mode = 0;
+
     initscr(); // start curses mode
+    in_curses_mode = 1;
     getmaxyx(stdscr, row, col); // get window dimensions
     raw(); // no line-buffered input
     keypad(stdscr, TRUE);
@@ -112,6 +116,12 @@ int main(int argc, char *argv[]) {
     getch();
 
     endwin();
+    in_curses_mode = 0;
 
     return 0;
+error:
+    if (in_curses_mode) {
+        endwin();
+    }
+    return -1;
 }
