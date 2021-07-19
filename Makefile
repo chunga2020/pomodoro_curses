@@ -11,7 +11,7 @@ TARGET=./bin/pomodoro_curses
 .PHONY: all tests clean check
 
 # The target build
-all: $(TARGET) tests
+all: $(TARGET)
 
 dev: CFLAGS=-g -Wall -Isrc -Wall -Wextra
 dev: all
