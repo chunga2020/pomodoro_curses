@@ -1,3 +1,4 @@
+#include "dbg.h"
 #include "minunit.h"
 #include "pomodoro.h"
 
@@ -197,6 +198,20 @@ char *test_Timer_tick_decrements() {
     return NULL;
 }
 
+char *test_Timer_tick_stops_at_zero() {
+    Timer *t = Timer_alloc();
+    mu_assert(t != NULL, "Timer_alloc failed.");
+    int seconds = 5;
+    long int rc = Timer_set(t, 0, 0, seconds);
+    mu_assert(t->seconds == seconds, "Timer_set failed");
+    while ((rc = Timer_tick(t))) {
+        log_info("Seconds remaining: %ld", rc);
+    }
+
+    Timer_destroy(t);
+    return NULL;
+}
+
 char *all_tests() {
     mu_suite_start();
 
@@ -216,6 +231,7 @@ char *all_tests() {
     mu_run_test(test_Timer_tick_negative_minutes);
     mu_run_test(test_Timer_tick_negative_seconds);
     mu_run_test(test_Timer_tick_decrements);
+    mu_run_test(test_Timer_tick_stops_at_zero);
 
     return NULL;
 }
