@@ -1,12 +1,9 @@
 .TH POMODORO_CURSES 1
-
 .SH NAME
 pomodoro_curses \- an ncurses Pomodoro timer
-
 .SH SYNOPSIS
 .B pomodoro_curses
 [\fIOPTION\fR...]
-
 .SH DESCRIPTION
 \fBpomodoro_curses\fR is an ncurses-based Pomodoro timer that supports
 arbitrarily long work and rest sessions.
@@ -36,3 +33,7 @@ Default is 25.
 .BR \-B " " \fIlong_break\fR
 Specify the length of a long break between sets.
 Default is 30.
+.SH NOTES
+By default, \fBpomodoro_curses\fR does one pomodoro set consisting of three
+reps of work-(short rest). At the end comes a long rest. Thus, the total time
+is 3*(25+5) + 30 = 3*30 + 30 = 120 minutes = 2 hours.
