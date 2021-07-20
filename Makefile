@@ -31,7 +31,7 @@ tests: $(TESTS)
 
 # The cleaner
 clean:
-	rm -rf build $(OBJECTS) $(TESTS)
+	rm -rf bin $(OBJECTS) $(TESTS)
 	rm -f tests/tests.log
 	find . -name "*.gc*" -exec rm {} \;
 	rm -rf `find . -name "*.dSYM" -print`
