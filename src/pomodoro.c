@@ -82,17 +82,15 @@ error:
  */
 int Timer_tick(Timer *t) {
     check(t != NULL, "Got NULL Timer pointer");
-    int time_remaining = t->seconds;
-    check(time_remaining > 0,
+    check(t->seconds >= 0,
             "Time remaining cannot be negative. H: %d, M: %02d, S: %02d",
             t->seconds / (SECONDS_PER_MINUTE * MINUTES_PER_HOUR),
             t->seconds / SECONDS_PER_MINUTE,
             t->seconds);
     sleep(TIMER_PULSE);
     t->seconds--;
-    time_remaining = t->seconds;
     
-    return time_remaining;
+    return t->seconds;
 error:
     return -1;
 }
