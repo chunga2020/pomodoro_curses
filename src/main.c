@@ -80,11 +80,8 @@ int do_timer_session(Timer *t, int session_length, STATE state, int row,
     char msg[80];
     char *cur_state_msg = pomodoro_status(state);
     sprintf(msg, "%02d:%02d:00", hours, minutes);
-    mvprintw(row / 2 + 1, (col-strlen(msg)) / 2, msg, hours, minutes);
-    sprintf(msg, "Press enter to start");
-    mvprintw(row / 2 + 2, (col-strlen(msg)) / 2, msg);
+    mvprintw(row / 2, (col-strlen(msg)) / 2, msg, hours, minutes);
     refresh();
-    getch();
     clear();
     refresh();
     mvprintw(row / 2 - 1, (col-strlen(cur_state_msg)) / 2, "%s", cur_state_msg);
@@ -100,6 +97,37 @@ int do_timer_session(Timer *t, int session_length, STATE state, int row,
         refresh();
     }
     return 0;
+error:
+    return -1;
+}
+
+/* 
+ * Do a full pomodoro set
+ *
+ * Parameters:
+ *     t: The Timer to use
+ *     work_len: how many minutes work sessions are
+ *     short_b_len: how many minutes short (inter-pomodoro) breaks are
+ *     long_b_len: how many minutes long (inter-set) breaks are
+ *     sessions_per_set: how many pomodoro+short-break reps per set
+ *     row: ncurses window row count (for printing)
+ *     col: ncurses window column count (for printing)
+ * 
+ * Return: 0 on sucess, -1 on error
+ */
+int do_pomodoro_set(Timer *t, int work_len, int short_b_len, int long_b_len,
+        int sessions_per_set, int row, int col) {
+    check(t != NULL, "Got NULL Timer pointer");
+
+    for (int i = 0; i < sessions_per_set; i++) {
+        do_timer_session(t, work_len, POMODORO_WORK, row, col);
+        clear();
+        refresh();
+        do_timer_session(t, short_b_len, POMODORO_SHORT_REST, row, col);
+    }
+    clear();
+    refresh();
+    do_timer_session(t, long_b_len, POMODORO_LONG_REST, row, col);
 error:
     return -1;
 }
@@ -166,12 +194,16 @@ int main(int argc, char *argv[]) {
 
     char *welcome_msg = "Welcome to pomodoro_curses";
     mvprintw(row / 2, (col-strlen(welcome_msg)) / 2, "%s", welcome_msg);
+    refresh();
+    sleep(2);
+    clear();
+    refresh();
 
     Timer *pomodoro_timer = Timer_alloc();
     check(pomodoro_timer != NULL, "Failed to allocate main pomodoro timer.");
 
-    /* Timer setup */
-    int minutes_per_session = session_length;
+    do_pomodoro_set(pomodoro_timer, session_length, short_break_length,
+            long_break_length, pomodoros_per_set, row, col);
 
     getch();
 
