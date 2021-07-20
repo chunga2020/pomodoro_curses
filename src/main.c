@@ -215,8 +215,16 @@ int main(int argc, char *argv[]) {
     Timer *pomodoro_timer = Timer_alloc();
     check(pomodoro_timer != NULL, "Failed to allocate main pomodoro timer.");
 
-    do_pomodoro_set(pomodoro_timer, session_length, short_break_length,
-            long_break_length, pomodoros_per_set, row, col);
+    char msg[80];
+
+    for (int i = 1; i <= num_sets; i++) {
+        sprintf(msg, "Current set: #%d", i);
+        mvprintw(row / 2 - 2, (col-strlen(msg)) / 2, "%s", msg);
+        refresh();
+        sleep(2);
+        do_pomodoro_set(pomodoro_timer, session_length, short_break_length,
+                long_break_length, pomodoros_per_set, row, col);
+    }
 
     getch();
 
