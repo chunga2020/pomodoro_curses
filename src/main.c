@@ -54,6 +54,56 @@ error:
     return NULL;
 }
 
+/* 
+ * Do a pomodoro session
+ *
+ * Parameters:
+ *     t: pointer to the Timer to use
+ *     session_length: length of this pomodoro, in minutes
+ *     state: the type of timer --- working or resting
+ *     row: ncurses window row (for printing)
+ *     col: ncurses window column (for print)
+ * 
+ * Return: 0 on success, -1 on failure
+ */
+int do_timer_session(Timer *t, int session_length, STATE state, int row,
+        int col) {
+    check(t != NULL, "Got NULL Timer pointer.");
+    int time_left = session_length * (SECONDS_PER_MINUTE);
+    int hours = session_length / MINUTES_PER_HOUR;
+    session_length -= hours * MINUTES_PER_HOUR;
+    int minutes = session_length;
+
+    int rc = Timer_set(t, hours, minutes, 0);
+    check(rc == 0, "Failed to set main timer.");
+
+    char msg[80];
+    char *cur_state_msg = pomodoro_status(state);
+    sprintf(msg, "%02d:%02d:00", hours, minutes);
+    mvprintw(row / 2 + 1, (col-strlen(msg)) / 2, msg, hours, minutes);
+    sprintf(msg, "Press enter to start");
+    mvprintw(row / 2 + 2, (col-strlen(msg)) / 2, msg);
+    refresh();
+    getch();
+    clear();
+    refresh();
+    mvprintw(row / 2 - 1, (col-strlen(cur_state_msg)) / 2, "%s", cur_state_msg);
+
+    while ((time_left = Timer_tick(t)) != -1) {
+        hours = time_left / (SECONDS_PER_MINUTE * MINUTES_PER_HOUR);
+        time_left -= hours * SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
+        minutes = time_left / SECONDS_PER_MINUTE;
+        time_left -= minutes * SECONDS_PER_MINUTE;
+        int seconds = time_left;
+        sprintf(msg, "Time left: %02d:%02d:%02d", hours, minutes, seconds);
+        mvprintw(row / 2, (col-strlen(msg)) / 2, "%s", msg);
+        refresh();
+    }
+    return 0;
+error:
+    return -1;
+}
+
 int main(int argc, char *argv[]) {
 
     /* #### program options #### */
@@ -122,34 +172,6 @@ int main(int argc, char *argv[]) {
 
     /* Timer setup */
     int minutes_per_session = session_length;
-    int time_left = session_length * (SECONDS_PER_MINUTE);
-    int hours = minutes_per_session / MINUTES_PER_HOUR;
-    minutes_per_session -= hours * MINUTES_PER_HOUR;
-    int minutes = minutes_per_session;
-
-    int rc = Timer_set(pomodoro_timer, hours, minutes, 0);
-    check(rc == 0, "Failed to set main timer.");
-
-    char msg[80];
-    sprintf(msg, "%02d:%02d:00", hours, minutes);
-    mvprintw(row / 2 + 1, (col-strlen(msg)) / 2, msg, hours, minutes);
-    sprintf(msg, "Press enter to start");
-    mvprintw(row / 2 + 2, (col-strlen(msg)) / 2, msg);
-    refresh();
-    getch();
-    clear();
-    refresh();
-
-    while ((time_left = Timer_tick(pomodoro_timer)) != -1) {
-        hours = time_left / (SECONDS_PER_MINUTE * MINUTES_PER_HOUR);
-        time_left -= hours * SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
-        minutes = time_left / SECONDS_PER_MINUTE;
-        time_left -= minutes * SECONDS_PER_MINUTE;
-        int seconds = time_left;
-        sprintf(msg, "Time left: %02d:%02d:%02d", hours, minutes, seconds);
-        mvprintw(row / 2, (col-strlen(msg)) / 2, "%s", msg);
-        refresh();
-    }
 
     getch();
 
