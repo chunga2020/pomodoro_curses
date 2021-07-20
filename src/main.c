@@ -109,9 +109,10 @@ int main(int argc, char *argv[]) {
     initscr(); // start curses mode
     in_curses_mode = 1;
     getmaxyx(stdscr, row, col); // get window dimensions
-    raw(); // no line-buffered input
+    cbreak(); // no line-buffered input, but allow signals
     keypad(stdscr, TRUE);
     noecho(); // don't echo on getch()
+    curs_set(0); // invisible cursor
 
     char *welcome_msg = "Welcome to pomodoro_curses";
     mvprintw(row / 2, (col-strlen(welcome_msg)) / 2, "%s", welcome_msg);
