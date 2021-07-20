@@ -15,6 +15,9 @@ typedef enum {
     POMODORO_ERROR = -1
 } STATE;
 
+/* 
+ * Print a usage message to stderr and exit.
+ */
 void usage() {
     fprintf(stderr,
             "%s: A simple ncurses-based Pomodoro timer\n"
@@ -37,6 +40,16 @@ void usage() {
     );
 }
 
+/* 
+ * Return a friendly status message to show to the user
+ *
+ * Parameters:
+ *     state: The current state --- working or resting
+ * 
+ * Return:
+ *     If state is valid, a human-friendly string describing the current state.
+ *     Else, NULL
+ */
 char *pomodoro_status(STATE state) {
     switch (state) {
         case POMODORO_WORK:
