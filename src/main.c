@@ -6,7 +6,7 @@
 #include "dbg.h"
 #include "pomodoro.h"
 
-const char *prog_name = "pomodoro_curses";
+const char *PROG_NAME = "pomodoro_curses";
 
 typedef enum {
     POMODORO_WORK,
@@ -15,7 +15,7 @@ typedef enum {
     POMODORO_ERROR = -1
 } STATE;
 
-void usage(char *argv[]) {
+void usage() {
     fprintf(stderr,
             "%s: A simple ncurses-based Pomodoro timer\n"
             "\n"
@@ -32,7 +32,7 @@ void usage(char *argv[]) {
             "    -p\tNumber of pomodoros (work sessions) per set (default 3)\n"
             "    -s\tPomodoro session length (default 25)\n"
             "    -B\tLong break length (default 30)\n",
-            prog_name, prog_name
+            PROG_NAME, PROG_NAME
 
     );
 }
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
                 short_break_length = atoi(optarg);
                 break;
             case 'h':
-                usage(argv);
+                usage();
                 exit(EXIT_SUCCESS);
             case 'n':
                 num_sets = atoi(optarg);
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
                 long_break_length = atoi(optarg);
                 break;
             default:
-                usage(argv);
+                usage();
                 exit(EXIT_FAILURE);
         }
     }
