@@ -236,13 +236,37 @@ int main(int argc, char *argv[]) {
     noecho(); // don't echo on getch()
     curs_set(0); // invisible cursor
 
+    /* #### Window setup #### */
+    /* Status window starts at top-left corner */
+    int status_window_starty = 0;
+    int status_window_startx = 0;
+
+    /* Status window stretches all the way from left to right */
+    int status_window_width = col;
+    /*
+     * Status window is minimal size for centered messages:
+     *     2 rows for borders
+     *     2 rows for padding
+     *     2 rows for messages:
+     *         1 row for number of current set
+     *         1 row for status message from pomodoro_status()
+     */
+    int status_window_height = 6;
+
+    WINDOW *status_window = newwin(status_window_height, status_window_width,
+            status_window_starty, status_window_startx);
+    box(status_window, 0, 0);
+    wrefresh(status_window);
+
+
     char *welcome_msg = "Welcome to pomodoro_curses";
-    mvwprintw(stdscr, row / 2, (col-strlen(welcome_msg)) / 2, "%s",
-            welcome_msg);
-    refresh();
+    mvwprintw(status_window,
+            ((status_window_startx + status_window_height) / 2) - 1,
+            (status_window_width-strlen(welcome_msg)) / 2, "%s", welcome_msg);
+    wrefresh(status_window);
     sleep(2);
-    clear();
-    refresh();
+    wclear(status_window);
+    wrefresh(status_window);
 
     Timer *pomodoro_timer = Timer_alloc();
     check(pomodoro_timer != NULL, "Failed to allocate main pomodoro timer.");
@@ -251,8 +275,11 @@ int main(int argc, char *argv[]) {
 
     for (int i = 1; i <= num_sets; i++) {
         sprintf(msg, "Current set: #%d", i);
-        mvwprintw(stdscr, row / 2 - 2, (col-strlen(msg)) / 2, "%s", msg);
-        refresh();
+        mvwprintw(status_window,
+                ((status_window_startx+ status_window_height) / 2) - 1,
+                (status_window_width-strlen(msg)) / 2, "%s", msg);
+        box(status_window, 0, 0);
+        wrefresh(status_window);
         sleep(2);
         do_pomodoro_set(pomodoro_timer, session_length, short_break_length,
                 long_break_length, pomodoros_per_set, row, col);
@@ -262,6 +289,7 @@ int main(int argc, char *argv[]) {
 
     Timer_destroy(pomodoro_timer);
     pomodoro_timer = NULL;
+    destroy_win(status_window);
     endwin();
     in_curses_mode = 0;
 
@@ -270,6 +298,9 @@ error:
     if (pomodoro_timer != NULL) {
         Timer_destroy(pomodoro_timer);
         pomodoro_timer = NULL;
+    }
+    if (status_window) {
+        destroy_win(status_window);
     }
     if (in_curses_mode) {
         endwin();
