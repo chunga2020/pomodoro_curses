@@ -23,19 +23,22 @@ void usage() {
     fprintf(stderr,
             "%s: A simple ncurses-based Pomodoro timer\n"
             "\n"
-            "Usage: %s [-h] [-b short_break_len] [-n sets] "
-            "[-p sessions_per_set] [-s session_length] [-B long_break_len]\n"
+            "Usage: %s [-h] [OPTIONS]\n"
             "\n"
+            "Mandatory arguments to long options are mandatory for short "
+            "options too.\n"
             "Note: all durations are in minutes\n"
             "\n"
             "Options:\n"
-            "    -h\tShow this help message and exit\n"
+            "    -h, --help\t\t\tShow this help message and exit\n"
             "\n"
-            "    -b\tLength of breaks between work sessions (default 5)\n"
-            "    -n\tNumber of sets to work through (default 1)\n"
-            "    -p\tNumber of pomodoros (work sessions) per set (default 3)\n"
-            "    -s\tPomodoro session length (default 25)\n"
-            "    -B\tLong break length (default 30)\n",
+            "    -b, --short-break-length"
+                    "\tLength of breaks between work sessions (default 5)\n"
+            "    -n, --num-sets\t\tNumber of sets to work through (default 1)\n"
+            "    -p, --pomodoros-per-set"
+                    "\tNumber of pomodoros (work sessions) per set (default 3)\n"
+            "    -s, --session-length\tPomodoro session length (default 25)\n"
+            "    -B, --long-break-length\tLong break length (default 30)\n",
             PROG_NAME, PROG_NAME
 
     );
