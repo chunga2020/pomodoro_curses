@@ -1,3 +1,4 @@
+#include <getopt.h>
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
@@ -149,6 +150,7 @@ int main(int argc, char *argv[]) {
 
     /* #### program options #### */
     int opt; // variable for getting options with getopt(3)
+    int option_index;
 
     // Default pomodoro (work session) length, in minutes
     short int session_length = 25;
@@ -165,7 +167,17 @@ int main(int argc, char *argv[]) {
     // Default long break length, in minutes
     short int long_break_length = 30;
 
-    while ((opt = getopt(argc, argv, "b:hn:p:s:B:")) != -1) {
+    static struct option long_options[] = {
+        {"short-break-length", required_argument, 0, 'b'},
+        {"long-break-length", required_argument, 0, 'B'},
+        {"help", no_argument, 0, 'h'},
+        {"num-sets", required_argument, 0, 'n'},
+        {"pomodoros-per-set", required_argument, 0, 'p'},
+        {"session-length", required_argument, 0, 's'}
+    };
+
+    while ((opt = getopt_long(argc, argv, "b:hn:p:s:B:", long_options,
+            &option_index)) != -1) {
         switch (opt) {
             case 'b':
                 short_break_length = atoi(optarg);
