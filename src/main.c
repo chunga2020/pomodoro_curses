@@ -97,11 +97,12 @@ int do_timer_session(Timer *t, int session_length, STATE state, int row,
     char msg[80];
     char *cur_state_msg = pomodoro_status(state);
     sprintf(msg, "%02d:%02d:00", hours, minutes);
-    mvprintw(row / 2, (col-strlen(msg)) / 2, msg, hours, minutes);
+    mvwprintw(stdscr, row / 2, (col-strlen(msg)) / 2, msg, hours, minutes);
     refresh();
     clear();
     refresh();
-    mvprintw(row / 2 - 1, (col-strlen(cur_state_msg)) / 2, "%s", cur_state_msg);
+    mvwprintw(stdscr, row / 2 - 1, (col-strlen(cur_state_msg)) / 2, "%s",
+            cur_state_msg);
 
     while ((time_left = Timer_tick(t)) != -1) {
         hours = time_left / (SECONDS_PER_MINUTE * MINUTES_PER_HOUR);
@@ -110,7 +111,7 @@ int do_timer_session(Timer *t, int session_length, STATE state, int row,
         time_left -= minutes * SECONDS_PER_MINUTE;
         int seconds = time_left;
         sprintf(msg, "Time left: %02d:%02d:%02d", hours, minutes, seconds);
-        mvprintw(row / 2, (col-strlen(msg)) / 2, "%s", msg);
+        mvwprintw(stdscr, row / 2, (col-strlen(msg)) / 2, "%s", msg);
         refresh();
     }
     return 0;
@@ -221,7 +222,8 @@ int main(int argc, char *argv[]) {
     curs_set(0); // invisible cursor
 
     char *welcome_msg = "Welcome to pomodoro_curses";
-    mvprintw(row / 2, (col-strlen(welcome_msg)) / 2, "%s", welcome_msg);
+    mvwprintw(stdscr, row / 2, (col-strlen(welcome_msg)) / 2, "%s",
+            welcome_msg);
     refresh();
     sleep(2);
     clear();
@@ -234,7 +236,7 @@ int main(int argc, char *argv[]) {
 
     for (int i = 1; i <= num_sets; i++) {
         sprintf(msg, "Current set: #%d", i);
-        mvprintw(row / 2 - 2, (col-strlen(msg)) / 2, "%s", msg);
+        mvwprintw(stdscr, row / 2 - 2, (col-strlen(msg)) / 2, "%s", msg);
         refresh();
         sleep(2);
         do_pomodoro_set(pomodoro_timer, session_length, short_break_length,
