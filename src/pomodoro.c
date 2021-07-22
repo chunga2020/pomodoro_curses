@@ -6,13 +6,6 @@
 #include "dbg.h"
 #include "pomodoro.h"
 
-/*
- * Allocates memory for a Timer object.
- * 
- * Parameters: none
- * 
- * Returns: a pointer to the new timer on success; NULL on failure
- */
 Timer *Timer_alloc() {
     Timer *t = (Timer *)malloc(sizeof(Timer));
 
@@ -23,19 +16,6 @@ error:
     return NULL;
 }
 
-/*
- * Sets a Timer to the specified time.
- *
- * Parameters:
- *     hours: the number of hours to put on the timer; must not be negative
- *     minutes: the number of minutes to put on the timer; must be in the 
- *              interval [0, 59]
- *     seconds: the number of seconds to put on the timer; must be in the
- *              interval [0, 59]
- * Returns:
- *     0 on success
- *     -1 on failure
- */
 int Timer_set(Timer *t, int hours, int minutes, int seconds) {
     check(t != NULL, "Got NULL Timer pointer.");
     check(hours >= 0, "Cannot have negative 'hours' value '%d'.", hours);
@@ -58,13 +38,6 @@ error:
     return -1;
 }
 
-/* 
- * Destroy a Timer object
- *
- * Parameters:
- *     t: the Timer to destroy
- * Returns: none
- */
 void Timer_destroy(Timer *t) {
     check(t != NULL, "Got NULL Timer pointer.");
     free(t);
@@ -72,14 +45,6 @@ error:
     return;
 }
 
-/*
- * Make a timer count down
- *
- * Parameters:
- *     t: The timer to count down
- * 
- * Returns: on success, the number of seconds remaining; on failure, -1
- */
 int Timer_tick(Timer *t) {
     check(t != NULL, "Got NULL Timer pointer");
     check(t->seconds >= 0,
