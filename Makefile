@@ -2,6 +2,7 @@ CFLAGS=-g -O2 -Wall -Wextra -Isrc -DNDEBUG -lncurses
 
 SOURCES=$(wildcard src/**/*.c src/*.c)
 OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
+TESTABLE_SRC=$(filter-out src/main.c, $(SOURCES))
 
 TEST_SRC=$(wildcard tests/*_tests.c)
 TESTS=$(patsubst %.c,%,$(TEST_SRC))
@@ -11,7 +12,7 @@ TARGET=./bin/pomodoro_curses
 .PHONY: all tests clean check
 
 # The target build
-all: $(TARGET)
+all: tests $(TARGET)
 
 dev: CFLAGS=-g -Wall -Isrc -Wall -Wextra
 dev: all
@@ -23,8 +24,8 @@ build:
 	@mkdir -p bin
 
 # The Unit Tests
-$(TESTS): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $(patsubst %,%.c,$(@)) $(OBJECTS)
+$(TESTS): $(TESTABLE_SRC)
+	$(CC) $(CFLAGS) -o $@ $(patsubst %,%.c,$(@)) $(TESTABLE_SRC)
 
 tests: $(TESTS)
 	sh ./tests/runtests.sh
