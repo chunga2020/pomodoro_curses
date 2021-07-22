@@ -165,6 +165,29 @@ error:
     return;
 }
 
+/* 
+ * Create a new window
+ *
+ * Parameters:
+ *     h: window height
+ *     w: window width
+ *     y: y coordinate of top-left corner
+ *     x: x coordinate of top-left corner
+ * Returns:
+ *     on success, a pointer to the new window
+ *     on failure, NULL
+ */
+WINDOW *create_window(int h, int w, int y, int x) {
+    WINDOW *new_window = newwin(h, w, y, x);
+    check(new_window != NULL, "Failed to create window");
+    box(new_window, 0, 0);
+    wrefresh(new_window);
+
+    return new_window;
+error:
+    return NULL;
+}
+
 int main(int argc, char *argv[]) {
 
     /* #### program options #### */
