@@ -150,6 +150,21 @@ error:
     return -1;
 }
 
+/*
+ * Destroy an ncurses window that isn't stdscr
+ * 
+ * Parameters:
+ *     win: window to destroy
+ * Returns: none
+ */
+void destroy_win(WINDOW *win) {
+    check(win != NULL, "Got NULL Window pointer");
+    wborder(win, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
+    delwin(win);
+error:
+    return;
+}
+
 int main(int argc, char *argv[]) {
 
     /* #### program options #### */
