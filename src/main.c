@@ -276,10 +276,22 @@ int main(int argc, char *argv[]) {
      */
     int status_window_height = 6;
 
-    WINDOW *status_window = newwin(status_window_height, status_window_width,
-            status_window_starty, status_window_startx);
-    box(status_window, 0, 0);
-    wrefresh(status_window);
+    WINDOW * status_window = create_window(status_window_height,
+            status_window_width, status_window_starty, status_window_startx);
+    check(status_window != NULL, "Failed to create status window");
+
+    /* Timer window also extends all the way left to right */
+    int timer_window_startx = 0;
+    /* Just stick the timer right under the status window */
+    int timer_window_starty = status_window_starty + status_window_height;
+
+    int timer_window_width = col;
+    /* Timer window takes up whatever rows are left from the status window */
+    int timer_window_height = row - status_window_height;
+
+    WINDOW *timer_window = create_window(timer_window_height,
+            timer_window_width, timer_window_starty, timer_window_startx);
+    check(timer_window != NULL, "Failed to create timer window");
 
 
     char *welcome_msg = "Welcome to pomodoro_curses";
@@ -313,6 +325,7 @@ int main(int argc, char *argv[]) {
     Timer_destroy(pomodoro_timer);
     pomodoro_timer = NULL;
     destroy_win(status_window);
+    destroy_win(timer_window);
     endwin();
     in_curses_mode = 0;
 
@@ -324,6 +337,9 @@ error:
     }
     if (status_window) {
         destroy_win(status_window);
+    }
+    if (timer_window) {
+        destroy_win(timer_window);
     }
     if (in_curses_mode) {
         endwin();
