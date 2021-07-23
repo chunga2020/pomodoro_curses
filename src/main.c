@@ -224,6 +224,8 @@ error:
 
 int main(int argc, char *argv[]) {
 
+    WINDOW *status_window = NULL;
+    WINDOW *timer_window = NULL;
     /* #### program options #### */
     int opt; // variable for getting options with getopt(3)
     int option_index;
@@ -257,21 +259,30 @@ int main(int argc, char *argv[]) {
         switch (opt) {
             case 'b':
                 short_break_length = atoi(optarg);
+                check(short_break_length > 0,
+                        "Short break length must be greater than 0");
                 break;
             case 'h':
                 usage();
                 exit(EXIT_SUCCESS);
             case 'n':
                 num_sets = atoi(optarg);
+                check(num_sets > 0, "Number of sets must be greater than 0");
                 break;
             case 'p':
                 pomodoros_per_set = atoi(optarg);
+                check(pomodoros_per_set > 0,
+                        "Pomodoros per set must be greater than 0");
                 break;
             case 's':
                 session_length = atoi(optarg);
+                check(session_length > 0,
+                        "Session length must be greater than 0");
                 break;
             case 'B':
                 long_break_length = atoi(optarg);
+                check(long_break_length > 0,
+                        "Long break length must be greater than 0");
                 break;
             default:
                 usage();
@@ -310,7 +321,7 @@ int main(int argc, char *argv[]) {
      */
     int status_window_height = 6;
 
-    WINDOW * status_window = create_window(status_window_height,
+    status_window = create_window(status_window_height,
             status_window_width, status_window_starty, status_window_startx);
     check(status_window != NULL, "Failed to create status window");
 
@@ -323,7 +334,7 @@ int main(int argc, char *argv[]) {
     /* Timer window takes up whatever rows are left from the status window */
     int timer_window_height = row - status_window_height;
 
-    WINDOW *timer_window = create_window(timer_window_height,
+    timer_window = create_window(timer_window_height,
             timer_window_width, timer_window_starty, timer_window_startx);
     check(timer_window != NULL, "Failed to create timer window");
 
@@ -361,10 +372,10 @@ error:
         Timer_destroy(pomodoro_timer);
         pomodoro_timer = NULL;
     }
-    if (status_window) {
+    if (status_window != NULL) {
         destroy_win(status_window);
     }
-    if (timer_window) {
+    if (timer_window != NULL) {
         destroy_win(timer_window);
     }
     if (in_curses_mode) {
