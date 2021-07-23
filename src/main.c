@@ -78,13 +78,14 @@ error:
  *     t: pointer to the Timer to use
  *     session_length: length of this pomodoro, in minutes
  *     state: the type of timer --- working or resting
- *     row: ncurses window row (for printing)
- *     col: ncurses window column (for print)
+ *     status_win: pointer to the status window; needed for window calcuations
+ *     timer_win: pointer to the timer window; needed for window calcuations
+ *     set_num: current set number; needed for status window
  * 
  * Return: 0 on success, -1 on failure
  */
-int do_timer_session(Timer *t, int session_length, STATE state, int row,
-        int col) {
+int do_timer_session(Timer *t, int session_length, STATE state,
+        WINDOW *status_win, WINDOW *timer_win, int set_num) {
     check(t != NULL, "Got NULL Timer pointer.");
     int time_left = session_length * (SECONDS_PER_MINUTE);
     int hours = session_length / MINUTES_PER_HOUR;
@@ -96,13 +97,39 @@ int do_timer_session(Timer *t, int session_length, STATE state, int row,
 
     char msg[80];
     char *cur_state_msg = pomodoro_status(state);
+
+    int timer_win_h;
+    int timer_win_w;
+    getmaxyx(timer_win, timer_win_h, timer_win_w);
+    int timer_win_starty = getbegy(timer_win);
+
+    int status_win_h;
+    int status_win_w;
+    getmaxyx(status_win, status_win_h, status_win_w);
+    int status_win_starty = getbegy(status_win);
+
+    wclear(timer_win);
+    box(timer_win, 0, 0);
+    wrefresh(timer_win);
+
+    wclear(status_win);
+    box(status_win, 0, 0);
+    wrefresh(status_win);
+
     sprintf(msg, "%02d:%02d:00", hours, minutes);
-    mvwprintw(stdscr, row / 2, (col-strlen(msg)) / 2, msg, hours, minutes);
-    refresh();
-    clear();
-    refresh();
-    mvwprintw(stdscr, row / 2 - 1, (col-strlen(cur_state_msg)) / 2, "%s",
-            cur_state_msg);
+    mvwprintw(timer_win, (timer_win_starty + timer_win_h - 1) / 2 - 1,
+            (timer_win_w-strlen(msg)) / 2 - 1, msg);
+    box(timer_win, 0, 0);
+    wrefresh(timer_win);
+    mvwprintw(status_win, (status_win_starty + status_win_h) / 2,
+            (status_win_w-strlen(cur_state_msg)) / 2, "%s", cur_state_msg);
+    box(status_win, 0, 0);
+    wrefresh(status_win);
+    sprintf(msg, "Current set: %d", set_num);
+    mvwprintw(status_win, (status_win_starty + status_win_h) / 2 - 1,
+            (status_win_w-strlen(msg)) / 2, "%s", msg);
+    box(status_win, 0, 0);
+    wrefresh(status_win);
 
     while ((time_left = Timer_tick(t)) != -1) {
         hours = time_left / (SECONDS_PER_MINUTE * MINUTES_PER_HOUR);
@@ -111,8 +138,10 @@ int do_timer_session(Timer *t, int session_length, STATE state, int row,
         time_left -= minutes * SECONDS_PER_MINUTE;
         int seconds = time_left;
         sprintf(msg, "Time left: %02d:%02d:%02d", hours, minutes, seconds);
-        mvwprintw(stdscr, row / 2, (col-strlen(msg)) / 2, "%s", msg);
-        refresh();
+        mvwprintw(timer_win, (timer_win_starty + timer_win_h - 1) / 2 - 1,
+                (timer_win_w-strlen(msg)) / 2, "%s", msg);
+        box(timer_win, 0, 0);
+        wrefresh(timer_win);
     }
     return 0;
 error:
@@ -128,24 +157,29 @@ error:
  *     short_b_len: how many minutes short (inter-pomodoro) breaks are
  *     long_b_len: how many minutes long (inter-set) breaks are
  *     sessions_per_set: how many pomodoro+short-break reps per set
- *     row: ncurses window row count (for printing)
- *     col: ncurses window column count (for printing)
+ *     status_win: pointer to the status window; needed for window calcuations
+ *     timer_win: pointer to the timer window; needed for window calcuations
+ *     set_num: current set number; needed for status window
  * 
  * Return: 0 on sucess, -1 on error
  */
 int do_pomodoro_set(Timer *t, int work_len, int short_b_len, int long_b_len,
-        int sessions_per_set, int row, int col) {
+        int sessions_per_set, WINDOW *status_win, WINDOW *timer_win,
+        int set_num) {
     check(t != NULL, "Got NULL Timer pointer");
 
     for (int i = 0; i < sessions_per_set; i++) {
-        do_timer_session(t, work_len, POMODORO_WORK, row, col);
+        do_timer_session(t, work_len, POMODORO_WORK, status_win, timer_win,
+                set_num);
         clear();
         refresh();
-        do_timer_session(t, short_b_len, POMODORO_SHORT_REST, row, col);
+        do_timer_session(t, short_b_len, POMODORO_SHORT_REST,
+                status_win, timer_win, set_num);
     }
     clear();
     refresh();
-    do_timer_session(t, long_b_len, POMODORO_LONG_REST, row, col);
+    do_timer_session(t, long_b_len, POMODORO_LONG_REST, status_win, timer_win,
+            set_num);
 error:
     return -1;
 }
@@ -306,18 +340,10 @@ int main(int argc, char *argv[]) {
     Timer *pomodoro_timer = Timer_alloc();
     check(pomodoro_timer != NULL, "Failed to allocate main pomodoro timer.");
 
-    char msg[80];
-
     for (int i = 1; i <= num_sets; i++) {
-        sprintf(msg, "Current set: #%d", i);
-        mvwprintw(status_window,
-                ((status_window_startx+ status_window_height) / 2) - 1,
-                (status_window_width-strlen(msg)) / 2, "%s", msg);
-        box(status_window, 0, 0);
-        wrefresh(status_window);
-        sleep(2);
         do_pomodoro_set(pomodoro_timer, session_length, short_break_length,
-                long_break_length, pomodoros_per_set, row, col);
+                long_break_length, pomodoros_per_set, status_window,
+                timer_window, i);
     }
 
     getch();
