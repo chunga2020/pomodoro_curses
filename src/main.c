@@ -78,8 +78,8 @@ error:
  *     t: pointer to the Timer to use
  *     session_length: length of this pomodoro, in minutes
  *     state: the type of timer --- working or resting
- *     status_win: pointer to the status window; needed for window calcuations
- *     timer_win: pointer to the timer window; needed for window calcuations
+ *     status_win: pointer to the status window; needed for window calculations
+ *     timer_win: pointer to the timer window; needed for window calculations
  *     set_num: current set number; needed for status window
  * 
  * Return: 0 on success, -1 on failure
@@ -155,8 +155,8 @@ error:
  *     short_b_len: how many minutes short (inter-pomodoro) breaks are
  *     long_b_len: how many minutes long (inter-set) breaks are
  *     sessions_per_set: how many pomodoro+short-break reps per set
- *     status_win: pointer to the status window; needed for window calcuations
- *     timer_win: pointer to the timer window; needed for window calcuations
+ *     status_win: pointer to the status window; needed for window calculations
+ *     timer_win: pointer to the timer window; needed for window calculations
  *     set_num: current set number; needed for status window
  * 
  * Return: 0 on sucess, -1 on error
