@@ -7,9 +7,12 @@ TESTABLE_SRC=$(filter-out src/main.c, $(SOURCES))
 TEST_SRC=$(wildcard tests/*_tests.c)
 TESTS=$(patsubst %.c,%,$(TEST_SRC))
 
-TARGET=./bin/pomodoro_curses
+PROG=pomodoro_curses
+TARGET=./bin/$(PROG)
 
-.PHONY: all tests clean check
+DESTDIR=$(HOME)/.local/bin
+
+.PHONY: all tests clean check install uninstall
 
 # The target build
 all: tests $(TARGET)
@@ -42,3 +45,11 @@ check:
 	@echo Files with potentially dangerous functions.
 	@egrep '[^_.>a-zA-Z0-9](str(n?cpy|n?cat|xfrm|n?dup|str|pbrk|tok|_)\
 		|stpn?cpy|a?sn?printf|byte_)' $(SOURCES) || true
+
+
+install:
+	install -d $(DESTDIR)
+	install -m 755 $(TARGET) $(DESTDIR)
+
+uninstall:
+	rm -f $(DESTDIR)/$(PROG)
