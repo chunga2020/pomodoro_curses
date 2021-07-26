@@ -101,12 +101,10 @@ int do_timer_session(Timer *t, int session_length, STATE state,
     int timer_win_h;
     int timer_win_w;
     getmaxyx(timer_win, timer_win_h, timer_win_w);
-    int timer_win_starty = getbegy(timer_win);
 
     int status_win_h;
     int status_win_w;
     getmaxyx(status_win, status_win_h, status_win_w);
-    int status_win_starty = getbegy(status_win);
 
     wclear(timer_win);
     box(timer_win, 0, 0);
@@ -117,16 +115,16 @@ int do_timer_session(Timer *t, int session_length, STATE state,
     wrefresh(status_win);
 
     sprintf(msg, "%02d:%02d:00", hours, minutes);
-    mvwprintw(timer_win, (timer_win_starty + timer_win_h - 1) / 2 - 1,
+    mvwprintw(timer_win, timer_win_h / 2 - 1,
             (timer_win_w-strlen(msg)) / 2 - 1, msg);
     box(timer_win, 0, 0);
     wrefresh(timer_win);
-    mvwprintw(status_win, (status_win_starty + status_win_h) / 2,
+    mvwprintw(status_win, status_win_h / 2,
             (status_win_w-strlen(cur_state_msg)) / 2, "%s", cur_state_msg);
     box(status_win, 0, 0);
     wrefresh(status_win);
     sprintf(msg, "Current set: %d", set_num);
-    mvwprintw(status_win, (status_win_starty + status_win_h) / 2 - 1,
+    mvwprintw(status_win, status_win_h / 2 - 1,
             (status_win_w-strlen(msg)) / 2, "%s", msg);
     box(status_win, 0, 0);
     wrefresh(status_win);
@@ -138,7 +136,7 @@ int do_timer_session(Timer *t, int session_length, STATE state,
         time_left -= minutes * SECONDS_PER_MINUTE;
         int seconds = time_left;
         sprintf(msg, "Time left: %02d:%02d:%02d", hours, minutes, seconds);
-        mvwprintw(timer_win, (timer_win_starty + timer_win_h - 1) / 2 - 1,
+        mvwprintw(timer_win, timer_win_h / 2 - 1,
                 (timer_win_w-strlen(msg)) / 2, "%s", msg);
         box(timer_win, 0, 0);
         wrefresh(timer_win);
