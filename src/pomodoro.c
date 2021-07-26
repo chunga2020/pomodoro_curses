@@ -7,7 +7,7 @@
 #include "pomodoro.h"
 
 Timer *Timer_alloc() {
-    Timer *t = (Timer *)malloc(sizeof(Timer));
+    Timer *t = malloc(sizeof(Timer));
 
     check(t != NULL, "Timer allocation failed.");
 
