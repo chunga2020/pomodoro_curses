@@ -18,7 +18,7 @@ A simple pomodoro timer written with the Ncurses library
        - [ ] Sound for the beginning of a short break
        - [ ] Sound for the beginning of a long break
 - [x] `man` page documenting the program
-    - [ ] Installation of `man` page in an appropriate location to be found by
+    - [x] Installation of `man` page in an appropriate location to be found by
       `man`
 
 ## Installation
