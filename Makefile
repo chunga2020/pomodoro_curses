@@ -10,6 +10,9 @@ TESTS=$(patsubst %.c,%,$(TEST_SRC))
 PROG=pomodoro_curses
 TARGET=./bin/$(PROG)
 
+MANDIR=$(HOME)/man/man1
+DOCDIR=doc
+MANPAGE=$(PROG).1
 DESTDIR=$(HOME)/.local/bin
 
 .PHONY: all tests clean check install uninstall
@@ -48,8 +51,36 @@ check:
 
 
 install:
-	install -d $(DESTDIR)
-	install -m 755 $(TARGET) $(DESTDIR)
+	@echo -n Creating $(DESTDIR)...
+	@install -d $(DESTDIR)
+	@echo " Done."
+	@echo -n Installing $(TARGET) to $(DESTDIR)...
+	@install -m 755 $(TARGET) $(DESTDIR)
+	@echo " Done."
+	@echo -n Creating local \`man\` directory...
+	@install -d $(MANDIR)
+	@echo " Done."
+	@echo -n Moving manpage to $(MANDIR)...
+	@cp $(DOCDIR)/$(MANPAGE) $(MANDIR)
+	@echo " Done."
+	@echo -n Compressing manpage...
+	@gzip $(MANDIR)/$(MANPAGE)
+	@echo " Done."
+	@echo -n Updating \`man\` database...
+	@mandb -q
+	@echo " Done."
+	@echo
+	@echo Installation complete.
 
 uninstall:
-	rm -f $(DESTDIR)/$(PROG)
+	@echo -n Removing $(DESTDIR)/$(PROG)...
+	@rm -f $(DESTDIR)/$(PROG)
+	@echo " Done."
+	@echo -n Removing \`man\` page...
+	@rm -f $(MANDIR)/$(MANPAGE).gz
+	@echo " Done."
+	@echo -n "Updating \`man\` database..."
+	@mandb -q
+	@echo " Done."
+	@echo
+	@echo "Uninstall complete."
