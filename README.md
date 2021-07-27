@@ -21,6 +21,13 @@ A simple pomodoro timer written with the Ncurses library
     - [ ] Installation of `man` page in an appropriate location to be found by
       `man`
 
+## Installation
+1. Ensure dependencies are installed.
+2. `make`
+    - This will compile the program and run all unit tests
+3. `make install`
+    - Currently only installs per user, so elevated privileges are not needed
+
 ## Notes
 
 * `src/dbg.h` and `src/minunit.h` come from [Zed Shaw's *Learn C The Hard
