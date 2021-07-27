@@ -6,6 +6,21 @@ A simple pomodoro timer written with the Ncurses library
 * GNU `make`
 * `ncurses`
 
+## Features
+- [x]  `ncurses` interface
+- [x] Separate timer and status windows
+    - [x] User-friendly status messages to indicate whether working or on break
+- [x] Command-line flags to control program settings
+- [ ] Configuration file to persistently store preferred settings
+- [ ] Sound playback to indicate the beginnings and ends of time periods
+    - [ ] Sound for the start of a work session
+    - [ ] Sound for the end of a work session (beginning of a break)
+       - [ ] Sound for the beginning of a short break
+       - [ ] Sound for the beginning of a long break
+- [x] `man` page documenting the program
+    - [ ] Installation of `man` page in an appropriate location to be found by
+      `man`
+
 ## Notes
 
 * `src/dbg.h` and `src/minunit.h` come from [Zed Shaw's *Learn C The Hard
