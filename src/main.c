@@ -297,6 +297,7 @@ int main(int argc, char *argv[]) {
     initscr(); // start curses mode
     in_curses_mode = 1;
     getmaxyx(stdscr, row, col); // get window dimensions
+    check(row >= 10, "Terminal must be >=10 rows tall");
     cbreak(); // no line-buffered input, but allow signals
     keypad(stdscr, TRUE);
     noecho(); // don't echo on getch()
