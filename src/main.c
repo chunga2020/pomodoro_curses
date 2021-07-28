@@ -222,6 +222,7 @@ error:
 
 int main(int argc, char *argv[]) {
 
+    Timer *pomodoro_timer = NULL;
     WINDOW *status_window = NULL;
     WINDOW *timer_window = NULL;
     /* #### program options #### */
@@ -347,7 +348,7 @@ int main(int argc, char *argv[]) {
     wclear(status_window);
     wrefresh(status_window);
 
-    Timer *pomodoro_timer = Timer_alloc();
+    pomodoro_timer = Timer_alloc();
     check(pomodoro_timer != NULL, "Failed to allocate main pomodoro timer.");
 
     for (int i = 1; i <= num_sets; i++) {
