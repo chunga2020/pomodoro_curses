@@ -64,7 +64,7 @@ install:
 	@cp $(DOCDIR)/$(MANPAGE) $(MANDIR)
 	@echo " Done."
 	@echo -n Compressing manpage...
-	@gzip $(MANDIR)/$(MANPAGE)
+	@gzip -f $(MANDIR)/$(MANPAGE)
 	@echo " Done."
 	@echo -n Updating \`man\` database...
 	@mandb -q
