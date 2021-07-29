@@ -1,4 +1,5 @@
 #include <getopt.h>
+#include <ini.h>
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
@@ -220,7 +221,41 @@ error:
     return NULL;
 }
 
+/* Code for config parsing */
+typedef struct {
+    int short_break_length;
+    int long_break_length;
+    int set_count;
+    int pomodoros_per_set;
+    int work_length;
+} configuration;
+
+static int handler(void *user, const char *section, const char *name,
+        const char *value) {
+    configuration *pconfig = (configuration *)user;
+
+#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+    if (MATCH("timer", "short_break_length")) {
+        pconfig->short_break_length = atoi(value);
+    } else if (MATCH("timer", "long_break_length")) {
+        pconfig->long_break_length = atoi(value);
+    } else if (MATCH("timer", "set_count")) {
+        pconfig->set_count = atoi(value);
+    } else if (MATCH("timer", "pomodoros_per_set")) {
+        pconfig->pomodoros_per_set = atoi(value);
+    } else if (MATCH("timer", "work_length")) {
+        pconfig->work_length = atoi(value);
+    } else {
+        sentinel("Bad value in config: %s[%s]", section, name);
+    }
+    return 1;
+error:
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
+
+    configuration config;
 
     Timer *pomodoro_timer = NULL;
     WINDOW *status_window = NULL;
@@ -228,6 +263,10 @@ int main(int argc, char *argv[]) {
     /* #### program options #### */
     int opt; // variable for getting options with getopt(3)
     int option_index;
+    /* Maximum filepath length, not including NUL terminator */
+    const int MAXPATH = 255;
+
+    char *config_file = NULL;
 
     // Default pomodoro (work session) length, in minutes
     short int session_length = 25;
@@ -247,19 +286,31 @@ int main(int argc, char *argv[]) {
     static struct option long_options[] = {
         {"short-break-length", required_argument, 0, 'b'},
         {"long-break-length", required_argument, 0, 'B'},
+        {"config-file", required_argument, 0, 'c'},
         {"help", no_argument, 0, 'h'},
         {"num-sets", required_argument, 0, 'n'},
         {"pomodoros-per-set", required_argument, 0, 'p'},
         {"session-length", required_argument, 0, 's'}
     };
 
-    while ((opt = getopt_long(argc, argv, "b:hn:p:s:B:", long_options,
+    while ((opt = getopt_long(argc, argv, "b:c:hn:p:s:B:", long_options,
             &option_index)) != -1) {
         switch (opt) {
             case 'b':
                 short_break_length = atoi(optarg);
                 check(short_break_length > 0,
                         "Short break length must be greater than 0");
+                break;
+            case 'c':
+                config_file = strndup(optarg, MAXPATH);
+                int rc = ini_parse(config_file, handler, &config);
+                check(rc != -1, "Error opening config file '%s'", config_file);
+                check(rc != -2, "ini_parse memory error");
+                short_break_length = config.short_break_length;
+                long_break_length = config.long_break_length;
+                num_sets = config.set_count;
+                pomodoros_per_set = config.pomodoros_per_set;
+                session_length = config.work_length;
                 break;
             case 'h':
                 usage();
@@ -365,9 +416,14 @@ int main(int argc, char *argv[]) {
     destroy_win(timer_window);
     endwin();
     in_curses_mode = 0;
+    free(config_file);
+    config_file = NULL;
 
     return 0;
 error:
+    if (config_file != NULL) {
+        free(config_file); // needed because this string came from strndup()
+    }
     if (pomodoro_timer != NULL) {
         Timer_destroy(pomodoro_timer);
         pomodoro_timer = NULL;
