@@ -256,7 +256,8 @@ error:
 
 int main(int argc, char *argv[]) {
 
-    configuration config;
+    configuration config = {.long_break_length = 0, .pomodoros_per_set = 0,
+            .set_count = 0, .short_break_length = 0, .work_length = 0};
 
     Timer *pomodoro_timer = NULL;
     WINDOW *status_window = NULL;
@@ -267,6 +268,15 @@ int main(int argc, char *argv[]) {
     /* Maximum filepath length, not including NUL terminator */
     const int MAXPATH = 255;
 
+    char *home = getenv("HOME");
+    check(home != NULL, "HOME environment variable doesn't exist");
+    char *default_config_path = strncat(home, "/.config/", MAXPATH);
+    default_config_path = strncat(default_config_path, PROG_NAME, MAXPATH);
+    default_config_path = strncat(default_config_path, "/config.ini", MAXPATH);
+    check (strnlen(default_config_path, MAXPATH) < MAXPATH,
+            "Config path too long");
+    
+    /* For -c option */
     char *config_file = NULL;
 
     // Default pomodoro (work session) length, in minutes
@@ -283,6 +293,17 @@ int main(int argc, char *argv[]) {
 
     // Default long break length, in minutes
     short int long_break_length = 30;
+
+    int rc = ini_parse(default_config_path, handler, &config);
+    check(rc != -1, "Error opening default config file '%s'",
+            default_config_path);
+    check(rc != -2, "ini_parse memory error");
+    short_break_length = config.short_break_length;
+    long_break_length = config.long_break_length;
+    num_sets = config.set_count;
+    pomodoros_per_set = config.pomodoros_per_set;
+    session_length = config.work_length;
+    check(rc == 0, "Failed to parse default config file");
 
     static struct option long_options[] = {
         {"short-break-length", required_argument, 0, 'b'},
@@ -304,7 +325,7 @@ int main(int argc, char *argv[]) {
                 break;
             case 'c':
                 config_file = strndup(optarg, MAXPATH);
-                int rc = ini_parse(config_file, handler, &config);
+                rc = ini_parse(config_file, handler, &config);
                 check(rc != -1, "Error opening config file '%s'", config_file);
                 check(rc != -2, "ini_parse memory error");
                 short_break_length = config.short_break_length;

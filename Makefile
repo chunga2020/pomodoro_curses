@@ -14,6 +14,9 @@ MANDIR=$(HOME)/man/man1
 DOCDIR=doc
 MANPAGE=$(PROG).1
 DESTDIR=$(HOME)/.local/bin
+SAMPLECONFIG=config-sample.ini
+DEFAULTCONFIG=config.ini
+CONFIGDIR=$(HOME)/.config/$(PROG)
 
 .PHONY: all tests clean check install uninstall
 
@@ -56,6 +59,12 @@ install:
 	@echo " Done."
 	@echo -n Installing $(PROG) to $(DESTDIR)...
 	@install -m 755 $(TARGET) $(DESTDIR)
+	@echo " Done."
+	@echo -n Creating config directory...
+	@install -d $(CONFIGDIR)
+	@echo " Done."
+	@echo -n Copying sample config to $(CONFIGDIR)/$(DEFAULTCONFIG)...
+	@cp $(SAMPLECONFIG) $(CONFIGDIR)/$(DEFAULTCONFIG)
 	@echo " Done."
 	@echo -n Creating local \`man\` directory...
 	@install -d $(MANDIR)
