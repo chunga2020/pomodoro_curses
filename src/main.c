@@ -33,13 +33,14 @@ void usage() {
             "Options:\n"
             "    -h, --help\t\t\tShow this help message and exit\n"
             "\n"
-            "    -b, --short-break-length"
+            "    -b, --short-break-length N"
                     "\tLength of breaks between work sessions (default 5)\n"
-            "    -n, --num-sets\t\tNumber of sets to work through (default 1)\n"
-            "    -p, --pomodoros-per-set"
+            "    -c, --config-file CONFIG\tPath to config file to use\n"
+            "    -n, --num-sets N\t\tNumber of sets to work through (default 1)\n"
+            "    -p, --pomodoros-per-set N"
                     "\tNumber of pomodoros (work sessions) per set (default 3)\n"
-            "    -s, --session-length\tPomodoro session length (default 25)\n"
-            "    -B, --long-break-length\tLong break length (default 30)\n",
+            "    -s, --session-length N\tPomodoro session length (default 25)\n"
+            "    -B, --long-break-length N\tLong break length (default 30)\n",
             PROG_NAME, PROG_NAME
 
     );
