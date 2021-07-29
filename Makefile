@@ -1,4 +1,4 @@
-CFLAGS=-g -O2 -Wall -Wextra -Isrc -DNDEBUG -lncurses -lini
+CFLAGS=-g -O2 -Wall -Wextra -Isrc -DNDEBUG -lncurses -linih
 
 SOURCES=$(wildcard src/**/*.c src/*.c)
 OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
