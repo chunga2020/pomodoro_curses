@@ -12,7 +12,7 @@ A simple pomodoro timer written with the Ncurses library
 - [x] Separate timer and status windows
     - [x] User-friendly status messages to indicate whether working or on break
 - [x] Command-line flags to control program settings
-- [ ] Configuration file to persistently store preferred settings
+- [x] Configuration file to persistently store preferred settings
 - [ ] Sound playback to indicate the beginnings and ends of time periods
     - [ ] Sound for the start of a work session
     - [ ] Sound for the end of a work session (beginning of a break)
