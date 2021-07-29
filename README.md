@@ -4,6 +4,7 @@ A simple pomodoro timer written with the Ncurses library
 
 ## Dependencies
 * GNU `make`
+* `libinih`
 * `ncurses`
 
 ## Features
