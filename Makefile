@@ -20,7 +20,7 @@ DESTDIR=$(HOME)/.local/bin
 # The target build
 all: tests $(TARGET)
 
-dev: CFLAGS=-g -Wall -Isrc -Wall -Wextra -lncurses
+dev: CFLAGS=-g -Wall -Isrc -Wall -Wextra -lncurses -linih
 dev: all
 
 $(TARGET): build $(OBJECTS)
