@@ -13,7 +13,8 @@ A simple pomodoro timer written with the Ncurses library
     - [x] User-friendly status messages to indicate whether working or on break
 - [x] Command-line flags to control program settings
 - [x] Configuration file to persistently store preferred settings
-- [ ] Sound playback to indicate the beginnings and ends of time periods
+- [x] Basic bell indicator of beginnings and ends of time periods
+- [ ] Better sound playback to indicate the beginnings and ends of time periods
     - [ ] Sound for the start of a work session
     - [ ] Sound for the end of a work session (beginning of a break)
        - [ ] Sound for the beginning of a short break
@@ -36,3 +37,7 @@ Way*](https://learncodethehardway.org/c/) book. As noted in the first response
 to [this forum
 thread](https://forum.learncodethehardway.com/t/dbg-h-licence/2178), people are
 freely encouraged to use this code as needed.
+* The bell indicator currently requires the terminal's visual bell to be
+enabled. Audible bells currently do not seem to work, at least on the system on
+which this program is developed. This also means that the terminal must be
+visible onscreen.

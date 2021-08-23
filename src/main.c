@@ -173,8 +173,10 @@ int do_pomodoro_set(Timer *t, int work_len, int short_b_len, int long_b_len,
                 set_num);
         clear();
         refresh();
+        beep();
         do_timer_session(t, short_b_len, POMODORO_SHORT_REST,
                 status_win, timer_win, set_num);
+        beep();
     }
     clear();
     refresh();
@@ -428,6 +430,7 @@ int main(int argc, char *argv[]) {
         do_pomodoro_set(pomodoro_timer, session_length, short_break_length,
                 long_break_length, pomodoros_per_set, status_window,
                 timer_window, i);
+        beep();
     }
 
     getch();
