@@ -166,6 +166,7 @@ error:
 int do_pomodoro_set(Timer *t, int work_len, int short_b_len, int long_b_len,
         int sessions_per_set, WINDOW *status_win, WINDOW *timer_win,
         int set_num) {
+    int rc = 0;
     check(t != NULL, "Got NULL Timer pointer");
 
     for (int i = 0; i < sessions_per_set; i++) {
@@ -173,15 +174,18 @@ int do_pomodoro_set(Timer *t, int work_len, int short_b_len, int long_b_len,
                 set_num);
         clear();
         refresh();
-        beep();
+        rc = beep();
+        check(rc == OK, "Terminal alert failure!");
         do_timer_session(t, short_b_len, POMODORO_SHORT_REST,
                 status_win, timer_win, set_num);
-        beep();
+        rc = beep();
+        check(rc == OK, "Terminal alert failure!");
     }
     clear();
     refresh();
     do_timer_session(t, long_b_len, POMODORO_LONG_REST, status_win, timer_win,
             set_num);
+    return rc;
 error:
     return -1;
 }
@@ -427,10 +431,12 @@ int main(int argc, char *argv[]) {
     check(pomodoro_timer != NULL, "Failed to allocate main pomodoro timer.");
 
     for (int i = 1; i <= num_sets; i++) {
-        do_pomodoro_set(pomodoro_timer, session_length, short_break_length,
+        rc = do_pomodoro_set(pomodoro_timer, session_length, short_break_length,
                 long_break_length, pomodoros_per_set, status_window,
                 timer_window, i);
-        beep();
+        check(rc == 0, "Pomodoro set error");
+        rc = beep();
+        check(rc == OK, "Could not beep after set");
     }
 
     getch();
