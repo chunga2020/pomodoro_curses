@@ -37,7 +37,3 @@ Way*](https://learncodethehardway.org/c/) book. As noted in the first response
 to [this forum
 thread](https://forum.learncodethehardway.com/t/dbg-h-licence/2178), people are
 freely encouraged to use this code as needed.
-* The bell indicator currently requires the terminal's visual bell to be
-enabled. Audible bells currently do not seem to work, at least on the system on
-which this program is developed. This also means that the terminal must be
-visible onscreen.
