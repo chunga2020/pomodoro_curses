@@ -33,6 +33,8 @@ void usage() {
             "Options:\n"
             "    -h, --help\t\t\tShow this help message and exit\n"
             "\n"
+            "    -a, --alert-type TYPE"
+                    "\tType of alert to use. Choose 'beep' or 'flash'\n"
             "    -b, --short-break-length N"
                     "\tLength of breaks between work sessions (default 5)\n"
             "    -c, --config-file CONFIG\tPath to config file to use\n"
@@ -44,6 +46,43 @@ void usage() {
             PROG_NAME, PROG_NAME
 
     );
+}
+
+typedef enum {
+    ALERT_UNSET = 0,
+    ALERT_BEEP = 1,
+    ALERT_FLASH = 2
+} ALERT_TYPE;
+
+/* 
+ * Alert the user to the end of a timer session
+ *
+ * Parameters:
+ *     type: the type of alert to use
+ * 
+ * Returns:
+ *     On success, 0
+ *     On failure, -1. Also emits a message to stderr
+ */
+int alert_user(ALERT_TYPE type) {
+    check(type == ALERT_BEEP || type == ALERT_FLASH,
+            "Invalid alert type %d. Choose ALERT_BEEP or ALERT_FLASH", type);
+    int rc = 0;
+    switch (type) {
+        case ALERT_BEEP:
+            rc = beep();
+            break;
+        case ALERT_FLASH:
+            rc = flash();
+            break;
+        default:
+            sentinel("I shouldn't run");
+            break;
+    }
+    check(rc == OK, "Alert failed");
+    return 0;
+error:
+    return -1;
 }
 
 /* 
@@ -160,12 +199,13 @@ error:
  *     status_win: pointer to the status window; needed for window calculations
  *     timer_win: pointer to the timer window; needed for window calculations
  *     set_num: current set number; needed for status window
+ *     alert_type: the type of alert to use
  * 
  * Return: 0 on sucess, -1 on error
  */
 int do_pomodoro_set(Timer *t, int work_len, int short_b_len, int long_b_len,
         int sessions_per_set, WINDOW *status_win, WINDOW *timer_win,
-        int set_num) {
+        int set_num, ALERT_TYPE type) {
     int rc = 0;
     check(t != NULL, "Got NULL Timer pointer");
 
@@ -174,12 +214,12 @@ int do_pomodoro_set(Timer *t, int work_len, int short_b_len, int long_b_len,
                 set_num);
         clear();
         refresh();
-        rc = beep();
-        check(rc == OK, "Terminal alert failure!");
+        rc = alert_user(type);
+        check(rc == 0, "Terminal alert failure!");
         do_timer_session(t, short_b_len, POMODORO_SHORT_REST,
                 status_win, timer_win, set_num);
-        rc = beep();
-        check(rc == OK, "Terminal alert failure!");
+        rc = alert_user(type);
+        check(rc == 0, "Terminal alert failure!");
     }
     clear();
     refresh();
@@ -235,6 +275,7 @@ typedef struct {
     int set_count;
     int pomodoros_per_set;
     int work_length;
+    ALERT_TYPE alert_type;
 } configuration;
 
 static int handler(void *user, const char *section, const char *name,
@@ -252,6 +293,14 @@ static int handler(void *user, const char *section, const char *name,
         pconfig->pomodoros_per_set = atoi(value);
     } else if (MATCH("timer", "work_length")) {
         pconfig->work_length = atoi(value);
+    } else if (MATCH("timer", "alert_type")) {
+        if (strncmp(value, "beep", 16) == 0) {
+            pconfig->alert_type = ALERT_BEEP;
+        } else if (strncmp(value, "flash", 16) == 0) {
+            pconfig->alert_type = ALERT_FLASH;
+        } else {
+            sentinel("Bad alert type %s. Choose 'beep' or 'flash'.", value);
+        }
     } else {
         sentinel("Bad value in config: %s[%s]", section, name);
     }
@@ -263,7 +312,8 @@ error:
 int main(int argc, char *argv[]) {
 
     configuration config = {.long_break_length = 0, .pomodoros_per_set = 0,
-            .set_count = 0, .short_break_length = 0, .work_length = 0};
+            .set_count = 0, .short_break_length = 0, .work_length = 0,
+            .alert_type = ALERT_UNSET };
 
     Timer *pomodoro_timer = NULL;
     WINDOW *status_window = NULL;
@@ -284,6 +334,9 @@ int main(int argc, char *argv[]) {
     
     /* For -c option */
     char *config_file = NULL;
+
+    // Default alert type
+    ALERT_TYPE alert_type = ALERT_BEEP;
 
     // Default pomodoro (work session) length, in minutes
     short int session_length = 25;
@@ -309,9 +362,11 @@ int main(int argc, char *argv[]) {
     num_sets = config.set_count;
     pomodoros_per_set = config.pomodoros_per_set;
     session_length = config.work_length;
+    alert_type = config.alert_type;
     check(rc == 0, "Failed to parse default config file");
 
     static struct option long_options[] = {
+        {"alert-type", required_argument, 0, 'a'},
         {"short-break-length", required_argument, 0, 'b'},
         {"long-break-length", required_argument, 0, 'B'},
         {"config-file", required_argument, 0, 'c'},
@@ -321,9 +376,21 @@ int main(int argc, char *argv[]) {
         {"session-length", required_argument, 0, 's'}
     };
 
-    while ((opt = getopt_long(argc, argv, "b:c:hn:p:s:B:", long_options,
+    while ((opt = getopt_long(argc, argv, "a:b:c:hn:p:s:B:", long_options,
             &option_index)) != -1) {
         switch (opt) {
+            case 'a':
+                if (strncmp(optarg, "beep", 16) == 0) {
+                    alert_type = ALERT_BEEP;
+                } else if (strncmp(optarg, "flash", 16) == 0) {
+                    alert_type = ALERT_FLASH;
+                } else {
+                    log_err("Bad alert type '%s'. Choose 'beep' or 'flash'\n",
+                            optarg);
+                    usage();
+                    exit(EXIT_FAILURE);
+                }
+                break;
             case 'b':
                 short_break_length = atoi(optarg);
                 check(short_break_length > 0,
@@ -433,9 +500,9 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i <= num_sets; i++) {
         rc = do_pomodoro_set(pomodoro_timer, session_length, short_break_length,
                 long_break_length, pomodoros_per_set, status_window,
-                timer_window, i);
+                timer_window, i, alert_type);
         check(rc == 0, "Pomodoro set error");
-        rc = beep();
+        rc = alert_user(alert_type);
         check(rc == OK, "Could not beep after set");
     }
 
