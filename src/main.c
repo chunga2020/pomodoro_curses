@@ -1,6 +1,7 @@
 #include <getopt.h>
 #include <ini.h>
 #include <ncurses.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -314,6 +315,9 @@ int main(int argc, char *argv[]) {
     configuration config = {.long_break_length = 0, .pomodoros_per_set = 0,
             .set_count = 0, .short_break_length = 0, .work_length = 0,
             .alert_type = ALERT_UNSET };
+    configuration explicit_config = {.long_break_length = 0,
+            .pomodoros_per_set = 0, .set_count = 0, .short_break_length = 0,
+            .work_length = 0, .alert_type = ALERT_UNSET };
 
     Timer *pomodoro_timer = NULL;
     WINDOW *status_window = NULL;
@@ -381,10 +385,11 @@ int main(int argc, char *argv[]) {
         switch (opt) {
             case 'a':
                 if (strncmp(optarg, "beep", 16) == 0) {
-                    alert_type = ALERT_BEEP;
+                    explicit_config.alert_type = ALERT_BEEP;
                 } else if (strncmp(optarg, "flash", 16) == 0) {
-                    alert_type = ALERT_FLASH;
+                    explicit_config.alert_type = ALERT_FLASH;
                 } else {
+                    explicit_config.alert_type = ALERT_UNSET;
                     log_err("Bad alert type '%s'. Choose 'beep' or 'flash'\n",
                             optarg);
                     usage();
@@ -392,7 +397,7 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'b':
-                short_break_length = atoi(optarg);
+                explicit_config.short_break_length = atoi(optarg);
                 check(short_break_length > 0,
                         "Short break length must be greater than 0");
                 break;
@@ -411,21 +416,21 @@ int main(int argc, char *argv[]) {
                 usage();
                 exit(EXIT_SUCCESS);
             case 'n':
-                num_sets = atoi(optarg);
+                explicit_config.set_count = atoi(optarg);
                 check(num_sets > 0, "Number of sets must be greater than 0");
                 break;
             case 'p':
-                pomodoros_per_set = atoi(optarg);
+                explicit_config.pomodoros_per_set = atoi(optarg);
                 check(pomodoros_per_set > 0,
                         "Pomodoros per set must be greater than 0");
                 break;
             case 's':
-                session_length = atoi(optarg);
+                explicit_config.work_length = atoi(optarg);
                 check(session_length > 0,
                         "Session length must be greater than 0");
                 break;
             case 'B':
-                long_break_length = atoi(optarg);
+                explicit_config.long_break_length = atoi(optarg);
                 check(long_break_length > 0,
                         "Long break length must be greater than 0");
                 break;
@@ -433,6 +438,40 @@ int main(int argc, char *argv[]) {
                 usage();
                 exit(EXIT_FAILURE);
         }
+    }
+
+    /*
+     * If any command-line args were passed, we need to see if config values
+     * need to be overwritten with the correspopnding values from the command
+     * line.
+     */
+    if (explicit_config.alert_type != ALERT_UNSET) {
+        alert_type = explicit_config.alert_type;
+    }
+    if (explicit_config.short_break_length != 0
+            && explicit_config.short_break_length != config.short_break_length)
+    {
+        short_break_length = explicit_config.short_break_length;
+    }
+    if (explicit_config.long_break_length != 0
+            && explicit_config.long_break_length != config.long_break_length) {
+        long_break_length = explicit_config.long_break_length;
+        
+    }
+    if (explicit_config.set_count != 0
+            && explicit_config.set_count != config.set_count) {
+        num_sets = explicit_config.set_count;
+    }
+
+    if (explicit_config.pomodoros_per_set != 0
+            && explicit_config.pomodoros_per_set != config.pomodoros_per_set)
+    {
+        pomodoros_per_set = explicit_config.pomodoros_per_set;
+    }
+
+    if (explicit_config.work_length != 0
+            && explicit_config.work_length != config.work_length) {
+        session_length = explicit_config.work_length;
     }
 
     int row = 0;
