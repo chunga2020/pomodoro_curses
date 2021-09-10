@@ -62,6 +62,8 @@ void usage() {
             "    -b, --short-break-length N"
                     "\tLength of breaks between work sessions (default 5)\n"
             "    -c, --config-file CONFIG\tPath to config file to use\n"
+            "    -d\t\t\t\tDump to stdout values from config file and exit. May\n"
+            "\t\t\t\tbe combined with -c to dump a custom config\n"
             "    -n, --num-sets N\t\tNumber of sets to work through (default 1)\n"
             "    -p, --pomodoros-per-set N"
                     "\tNumber of pomodoros (work sessions) per set (default 3)\n"
@@ -98,6 +100,35 @@ int alert_user(ALERT_TYPE type) {
             break;
     }
     check(rc == OK, "Alert failed");
+    return 0;
+error:
+    return -1;
+}
+
+/*
+ * Dump the contents of a config file to stdout.
+ *
+ * Parameters:
+ *     configptr: the pointer to the configuration struct to read
+ *     filepath: the path to the file the config came from (for printing only)
+ *
+ * Returns:
+ *     On success, 0
+ *     On failure, -1
+ */
+int dump_config(configuration *configptr, char *filepath) {
+    check(configptr != NULL, "Got NULL configuration pointer!");
+    check(filepath != NULL, "Got NULL config path");
+    check(strncmp(filepath, "", MAXPATH) != 0, "Got empty config path");
+    printf("Current configuration from %s:\n", filepath);
+    printf("\tAlert type: %s\n",
+            configptr->alert_type == ALERT_BEEP ? "audible" : "visual");
+    printf("\tShort break length: %d minutes\n", configptr->short_break_length);
+    printf("\tLong break length: %d minutes\n", configptr->long_break_length);
+    printf("\tWork session length: %d minutes\n", configptr->work_length);
+    printf("\tPomodoros per set: %d\n", configptr->pomodoros_per_set);
+    printf("\tNumber of sets: %d\n", configptr->set_count);
+
     return 0;
 error:
     return -1;
@@ -379,13 +410,17 @@ int main(int argc, char *argv[]) {
         {"short-break-length", required_argument, 0, 'b'},
         {"long-break-length", required_argument, 0, 'B'},
         {"config-file", required_argument, 0, 'c'},
+        {"dump-config", no_argument, 0, 'd'},
         {"help", no_argument, 0, 'h'},
         {"num-sets", required_argument, 0, 'n'},
         {"pomodoros-per-set", required_argument, 0, 'p'},
         {"session-length", required_argument, 0, 's'}
     };
 
-    while ((opt = getopt_long(argc, argv, "a:b:c:hn:p:s:B:", long_options,
+    bool use_custom_config_file = false;
+    bool do_config_dump = false;
+
+    while ((opt = getopt_long(argc, argv, "a:b:c:dhn:p:s:B:", long_options,
             &option_index)) != -1) {
         switch (opt) {
             case 'a':
@@ -407,6 +442,7 @@ int main(int argc, char *argv[]) {
                         "Short break length must be greater than 0");
                 break;
             case 'c':
+                use_custom_config_file = true;
                 config_file = strndup(optarg, MAXPATH);
                 rc = ini_parse(config_file, handler, &config);
                 check(rc != -1, "Error opening config file '%s'", config_file);
@@ -416,6 +452,9 @@ int main(int argc, char *argv[]) {
                 num_sets = config.set_count;
                 pomodoros_per_set = config.pomodoros_per_set;
                 session_length = config.work_length;
+                break;
+            case 'd':
+                do_config_dump = true;
                 break;
             case 'h':
                 usage();
@@ -477,6 +516,17 @@ int main(int argc, char *argv[]) {
     if (explicit_config.work_length != 0
             && explicit_config.work_length != config.work_length) {
         session_length = explicit_config.work_length;
+    }
+
+    if (do_config_dump) {
+        if (use_custom_config_file) {
+            rc = dump_config(&config, config_file);
+            check(rc == 0, "dump_config failure");
+        } else {
+            rc = dump_config(&config, default_config_path);
+            check(rc == 0, "dump_config failure");
+        }
+        exit(EXIT_SUCCESS);
     }
 
     int row = 0;
