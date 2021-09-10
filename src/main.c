@@ -9,7 +9,30 @@
 #include "dbg.h"
 #include "pomodoro.h"
 
+/* #### Useful constants #### */
+
+/* Maximum filepath length, not including NUL terminator */
+const int MAXPATH = 255;
+
 const char *PROG_NAME = "pomodoro_curses";
+
+/* #### Useful typedefs #### */
+
+typedef enum {
+    ALERT_UNSET = 0,
+    ALERT_BEEP = 1,
+    ALERT_FLASH = 2
+} ALERT_TYPE;
+
+/* Code for config parsing */
+typedef struct {
+    int short_break_length;
+    int long_break_length;
+    int set_count;
+    int pomodoros_per_set;
+    int work_length;
+    ALERT_TYPE alert_type;
+} configuration;
 
 typedef enum {
     POMODORO_WORK,
@@ -48,12 +71,6 @@ void usage() {
 
     );
 }
-
-typedef enum {
-    ALERT_UNSET = 0,
-    ALERT_BEEP = 1,
-    ALERT_FLASH = 2
-} ALERT_TYPE;
 
 /* 
  * Alert the user to the end of a timer session
@@ -269,16 +286,6 @@ error:
     return NULL;
 }
 
-/* Code for config parsing */
-typedef struct {
-    int short_break_length;
-    int long_break_length;
-    int set_count;
-    int pomodoros_per_set;
-    int work_length;
-    ALERT_TYPE alert_type;
-} configuration;
-
 static int handler(void *user, const char *section, const char *name,
         const char *value) {
     configuration *pconfig = (configuration *)user;
@@ -325,8 +332,6 @@ int main(int argc, char *argv[]) {
     /* #### program options #### */
     int opt; // variable for getting options with getopt(3)
     int option_index;
-    /* Maximum filepath length, not including NUL terminator */
-    const int MAXPATH = 255;
 
     char *home = getenv("HOME");
     check(home != NULL, "HOME environment variable doesn't exist");
